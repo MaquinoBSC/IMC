@@ -45,4 +45,53 @@ class UserController extends AbstractController
             'registerForm'=> $registerForm->createView()
         ]);
     }
+
+    /**
+     * @Route("/", name="login")
+     */
+    public function login(Request $request): Response
+    {
+        $loginForm= $this->createFormBuilder()
+            ->add("name")
+            ->add("email", EmailType::class)
+            ->add("password", PasswordType::class)
+            ->add("Submit", SubmitType::class)
+            ->getForm();
+
+        $loginForm->handleRequest($request);
+
+        if($loginForm->isSubmitted() && $loginForm->isValid()){
+            $data= $loginForm->getData();
+
+            $searchUser= $this->getDoctrine()
+                ->getRepository(User::class)
+                ->LoginUser($data['name']);
+
+            if($searchUser){
+                if($searchUser[0]['email'] == $data['email'] && $searchUser[0]['password'] == $data['password']){
+                    return $this->render('user/result.html.twig', [
+                        'text'=> "Usuario autorizado",
+                        'user'=> $searchUser,
+                    ]);
+                }
+                else{
+                    return $this->render('user/result.html.twig', [
+                        'text'=> "Usuario no autorizado, veirifca tus credenciales",
+                        'user'=> $searchUser,
+                    ]);
+                }
+            }
+            else{
+                return $this->render('user/result.html.twig', [
+                    'text'=> "Usuario NO encontrado",
+                    'user'=> $searchUser,
+                ]);
+            }
+        }
+
+        return $this->render('user/login.html.twig', [
+            'controller_name' => 'Log In',
+            'loginForm'=> $loginForm->createView()
+        ]);
+    }
 }

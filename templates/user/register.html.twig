@@ -1,0 +1,24 @@
+ 
+{% block body %}
+    <style>
+        .container{
+            background-color: #696969;
+        }
+        .form{
+            background-color: cyan;
+            width: 50%;
+            margin: auto;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+    <body class="container">
+        <div class="form">
+            <h1 class="title"> {{ controller_name }} </h1>
+
+            <div>
+                {{ form(registerForm) }}
+            </div>
+        </div>
+    </body>
+{% endblock %}

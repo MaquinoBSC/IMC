@@ -18,8 +18,10 @@ class ImcController extends AbstractController
      */
     public function index(Request $request): Response
     {
+        //Obtenermos el nombre del usuario del query enviado
         $user= $request->query->get('user');
 
+        //Construimos el formulario
         $imcForm= $this->createFormBuilder()
             ->add("height", IntegerType::class)
             ->add("weight", IntegerType::class)
@@ -28,31 +30,55 @@ class ImcController extends AbstractController
 
         $imcForm->handleRequest($request);
 
+        //Estamos a la escucha de que el formulario sea enviado
         if($imcForm->isSubmitted() && $imcForm->isValid()){
             $data= $imcForm->getData();
 
-            $subimc1= $data['height']/100;
-            $subimc2= $subimc1 * $subimc1;
-            $imc= $data['weight'] / $subimc2;
-            
-            $date= date('d-m-Y');
-
-            $imcObj= new Imc();
-            $imcObj->setHeight($data['height']);
-            $imcObj->setWeight($data['weight']);
-            $imcObj->setDate($date);
-            $imcObj->setImc((int)$imc);
-
+            //hacemos busqueda del usuario en la BD
             $em= $this->getDoctrine()->getManager();
             $userSearch= $em->getRepository(User::class)->findOneBy(['name'=> $user]);
 
+            //Calculamos el IMC
+            $subimc1= $data['height']/100;
+            $subimc2= $subimc1 * $subimc1;
+            $imc= $data['weight'] / $subimc2;
+            $date= date('d-m-Y');
+
+            //Validamos que el usuario exista en la BD
             if($userSearch){
+                //Obtenemos el registro de IMC del usuario
                 $entityManager= $this->getDoctrine()->getManager();
-                $entityManager->persist($imcObj);
-                $entityManager->flush();
+                
 
-                $userSearch->setImc($imcObj);
+                //SI existe IMC, obtenemos el objeto para unicamente actualizarlo
+                if($userSearch->getImc()){
+                    $imcSearch= $entityManager->getRepository(Imc::class)->find($userSearch->getImc());
+                    $imcSearch->setHeight($data['height']);
+                    $imcSearch->setWeight($data['weight']);
+                    $imcSearch->setDate($date);
+                    $imcSearch->setImc((int)$imc);
 
+                    $entityManager->persist($imcSearch);
+                    $entityManager->flush();
+
+                    //Actualizamos la relacion de IMC del usuario
+                    $userSearch->setImc($imcSearch);
+                }
+                //Si el No existe IMC, creamos un nuevo objeto IMC y hacemos persistencia a la BD y lo relacionamos con el usuario
+                else{
+                    $imcObj= new Imc();
+                    $imcObj->setHeight($data['height']);
+                    $imcObj->setWeight($data['weight']);
+                    $imcObj->setDate($date);
+                    $imcObj->setImc((int)$imc);
+
+                    $entityManager->persist($imcObj);
+                    $entityManager->flush();
+
+                    $userSearch->setImc($imcObj);
+                }
+
+                //Hacemos persistencia de los nuevos datos de usuario a la bD
                 $em->persist($userSearch);
                 $em->flush();
             }

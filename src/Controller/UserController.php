@@ -38,6 +38,10 @@ class UserController extends AbstractController
             $entityManager= $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
+
+            return $this->redirectToRoute('imc', [
+                'user'=> $data['name'],
+            ]);
         }
 
         return $this->render('user/register.html.twig', [
@@ -69,9 +73,8 @@ class UserController extends AbstractController
 
             if($searchUser){
                 if($searchUser[0]['email'] == $data['email'] && $searchUser[0]['password'] == $data['password']){
-                    return $this->render('user/result.html.twig', [
-                        'text'=> "Usuario autorizado",
-                        'user'=> $searchUser,
+                    return $this->redirectToRoute('imc', [
+                        'user'=> $searchUser[0]['name'],
                     ]);
                 }
                 else{

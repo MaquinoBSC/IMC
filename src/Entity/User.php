@@ -32,6 +32,11 @@ class User
      */
     private $password;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Imc::class, cascade={"persist", "remove"})
+     */
+    private $imc;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +74,18 @@ class User
     public function setPassword(string $password): self
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    public function getImc(): ?Imc
+    {
+        return $this->imc;
+    }
+
+    public function setImc(?Imc $imc): self
+    {
+        $this->imc = $imc;
 
         return $this;
     }

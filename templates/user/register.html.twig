@@ -10,6 +10,7 @@
             margin: auto;
             display: flex;
             justify-content: center;
+            flex-direction: row;
         }
     </style>
     <body class="container">
@@ -19,6 +20,8 @@
             <div>
                 {{ form(registerForm) }}
             </div>
+
+            <a href={{ relative_path('http://127.0.0.1:8000/') }}>Login</a>
         </div>
     </body>
 {% endblock %}

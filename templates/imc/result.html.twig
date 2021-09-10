@@ -1,0 +1,25 @@
+
+{% block stylesheets %}
+    <style>
+        .container{
+            width: 50%;
+            background-color: cyan;
+            margin: 0 auto;
+        }
+        .container .data{
+            padding: 5px 15px;
+        }
+    </style>
+{% endblock %}
+
+<div class="container">
+    <div class="data">
+        <h1>Results</h1>
+        <p><strong>Name: </strong>{{ user.name }}</p>
+        <p><strong>Email: </strong>{{ user.email }}</p>
+        <p><strong>Height: </strong>{{ imcUser.height }}</p>
+        <p><strong>Weight: </strong>{{ imcUser.weight }}</p>
+        <p><strong>IMC: </strong>{{ imcUser.imc }}</p>
+        <p><strong>Description: </strong>{{ imcUser.description }}</p>
+    </div>
+</div>

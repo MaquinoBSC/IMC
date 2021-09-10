@@ -44,6 +44,33 @@ class ImcController extends AbstractController
             $imc= $data['weight'] / $subimc2;
             $date= date('d-m-Y');
 
+            $description= "";
+
+            if($imc < 16){
+                $description= "Delgadez severa";
+            }
+            elseif($imc < 17){
+                $description= "Delgadez moderada";
+            }
+            elseif($imc < 17.5){
+                $description= "Delgadez leve";
+            }
+            elseif($imc < 25){
+                $description= "Peso normal";
+            }
+            elseif($imc < 30){
+                $description= "Sobrepeso";
+            }
+            elseif($imc < 35){
+                $description= "Obesidad leve";
+            }
+            elseif($imc < 40){
+                $description= "Obesidad media";
+            }
+            elseif($imc >= 40){
+                $description= "Obesidad morbida";
+            }
+
             //Validamos que el usuario exista en la BD
             if($userSearch){
                 //Obtenemos el registro de IMC del usuario
@@ -55,32 +82,45 @@ class ImcController extends AbstractController
                     $imcSearch= $entityManager->getRepository(Imc::class)->find($userSearch->getImc());
                     $imcSearch->setHeight($data['height']);
                     $imcSearch->setWeight($data['weight']);
-                    $imcSearch->setDate($date);
                     $imcSearch->setImc((int)$imc);
+                    $imcSearch->setDescription($description);
+                    $imcSearch->setDate($date);
 
                     $entityManager->persist($imcSearch);
                     $entityManager->flush();
 
-                    //Actualizamos la relacion de IMC del usuario
+                    //Hacemos persistencia de los nuevos datos de usuario a la bD
                     $userSearch->setImc($imcSearch);
+                    $em->persist($userSearch);
+                    $em->flush();
+
+                    return $this->render('imc/result.html.twig', [
+                        'imcUser'=> $imcSearch,
+                        'user'=> $userSearch
+                    ]);
                 }
                 //Si el No existe IMC, creamos un nuevo objeto IMC y hacemos persistencia a la BD y lo relacionamos con el usuario
                 else{
                     $imcObj= new Imc();
                     $imcObj->setHeight($data['height']);
                     $imcObj->setWeight($data['weight']);
-                    $imcObj->setDate($date);
                     $imcObj->setImc((int)$imc);
+                    $imcObj->setDescription($description);
+                    $imcObj->setDate($date);
 
                     $entityManager->persist($imcObj);
                     $entityManager->flush();
 
+                    //Hacemos persistencia de los nuevos datos de usuario a la bD
                     $userSearch->setImc($imcObj);
-                }
+                    $em->persist($userSearch);
+                    $em->flush();
 
-                //Hacemos persistencia de los nuevos datos de usuario a la bD
-                $em->persist($userSearch);
-                $em->flush();
+                    return $this->render('imc/result.html.twig', [
+                        'imcUser'=> $$imcObj,
+                        'user'=> $userSearch
+                    ]);
+                }
             }
         }
 
